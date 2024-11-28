@@ -8,6 +8,7 @@ require("dotenv").config();
 
 const bookRoutes = require("./routes/bookRoutes");
 const reviewRoutes = require("./routes/reviewRoutes");
+const userRoutes = require("./routes/userRoutes");  
 
 const PORT = process.env.PORT || 5000;
 
@@ -28,6 +29,7 @@ connection.once("open", () => {
 // Routes
 app.use("/api/books", bookRoutes);
 app.use("/api/reviews", reviewRoutes);
+app.use("/api/users", userRoutes);
 
 // Start server
 app.listen(PORT, () => {

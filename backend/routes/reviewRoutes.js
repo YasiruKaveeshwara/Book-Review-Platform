@@ -72,4 +72,44 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// Post a review for a specific book
+router.post("/", async (req, res) => {
+  const { bookId, userName, reviewText, rating } = req.body;
+
+  // Validate input
+  if (!bookId || !userName || !reviewText || rating == null) {
+    return res.status(400).json({ message: "All fields are required" });
+  }
+
+  // Validate rating range
+  if (rating < 1 || rating > 5) {
+    return res.status(400).json({ message: "Rating must be between 1 and 5" });
+  }
+
+  try {
+    // Create a new review
+    const newReview = new Review({
+      book: bookId,
+      userName,
+      reviewText,
+      rating,
+    });
+
+    // Save the review to the database
+    await newReview.save();
+
+    // Optionally, update the book with the average rating (if needed)
+    const book = await Book.findById(bookId);
+    const allReviews = await Review.find({ book: bookId });
+    const averageRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
+    book.rating = averageRating;
+    await book.save();
+
+    res.status(201).json(newReview);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;
+

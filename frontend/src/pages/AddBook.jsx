@@ -58,9 +58,9 @@ function AddBook() {
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-orange-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center text-orange-500 mb-6">Add a New Book</h2>
+    <div className="flex items-center justify-center h-screen bg-orange-100">
+      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
+        <h2 className="mb-6 text-2xl font-bold text-center text-orange-500">Add a New Book</h2>
 
         {/* Display Alert if there is an error */}
         {alert && (
@@ -125,7 +125,7 @@ function AddBook() {
 
           {/* Material UI Rating component for selecting the rating */}
           <div className="flex flex-col items-center">
-            <h3 className="text-xl text-orange-500 mb-2">Rating</h3>
+            <h3 className="mb-2 text-xl text-orange-500">Rating</h3>
             <Rating
               name="rating"
               value={bookDetails.rating}
