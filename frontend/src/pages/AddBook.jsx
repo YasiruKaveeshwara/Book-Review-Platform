@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Correct hook for navigation
 import { Rating, Alert, Box, TextField, Button } from "@mui/material"; // Material UI components
 
-const AddBook = () => {
+function AddBook() {
   const navigate = useNavigate(); // Correct hook to navigate
   const [bookDetails, setBookDetails] = useState({
     title: "",
