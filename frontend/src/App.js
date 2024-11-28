@@ -6,7 +6,8 @@ import BookDetails from './pages/bookDetails.jsx';
 import Register from './pages/register';
 import Login from './pages/login';
 import Header from './components/header.jsx';
-import ProtectedRoute from './components/protectedRoute.js'; // Import ProtectedRoute
+import ProtectedRoute from './components/protectedRoute.js';
+import MyReviews from './pages/myReviews.jsx';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path='/addBook' element={<ProtectedRoute element={<AddBook />} />} />
         <Route path='/' element={<ProtectedRoute element={<ViewBooks />} />} />
         <Route path='/book/:id' element={<ProtectedRoute element={<BookDetails />} />} />
+        <Route path='/myReviews' element={<ProtectedRoute element={<MyReviews />} />} />
       </Routes>
     </Router>
   );

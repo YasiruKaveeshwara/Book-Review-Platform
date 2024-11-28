@@ -111,5 +111,25 @@ router.post("/", async (req, res) => {
   }
 });
 
-module.exports = router;
+// Route to get all reviews by a specific userName
+router.get("/user/:userName", async (req, res) => {
+  try {
+    // Find all reviews that match the userName
+    const reviews = await Review.find({ userName: req.params.userName })
+      .populate("book", "title author image")  // Populating book information
+      .exec();
 
+    // If no reviews are found for the user, return a 404 message
+    if (!reviews || reviews.length === 0) {
+      return res.status(404).json({ message: "No reviews found for this user" });
+    }
+
+    // Return the reviews found for the user
+    res.status(200).json(reviews);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+module.exports = router;

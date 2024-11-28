@@ -4,10 +4,9 @@ const User = require("../models/User");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 
-
 // CREATE a new user
 router.post("/register", async (req, res) => {
-  const { username, email, password } = req.body;
+  const { userName, email, password } = req.body;
 
   try {
     // Check if user already exists
@@ -20,7 +19,7 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create and save the new user
-    const newUser = new User({ username, email, password: hashedPassword });
+    const newUser = new User({ userName, email, password: hashedPassword });
     await newUser.save();
 
     res.status(201).json({ message: "User registered successfully", user: newUser });
@@ -62,30 +61,26 @@ router.post("/login", async (req, res) => {
     }
 
     // Generate JWT token
-    const token = jwt.sign({ userId: user._id }, "your_jwt_secret", {
+    const authToken = jwt.sign({ userId: user._id }, "your_jwt_secret", {
       expiresIn: "1h",
     });
 
-    // Set session cookie (optional)
-    res.cookie("auth_token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // For production, use secure cookies
+    // Respond with success message, authToken, and userName
+    res.json({
+      message: "Login successful",
+      authToken,
+      userName: user.userName, // Include userName in the response
     });
-
-    // Respond with success message and token
-    res.json({ message: "Login successful", token });
-
   } catch (err) {
     console.error("Error during login:", err);
     res.status(500).json({ message: "Internal Server Error" });
   }
 });
 
-
 // UPDATE a user by ID
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
-  const { username, email, password } = req.body;
+  const { userName, email, password } = req.body;
 
   try {
     // Find the user by ID
@@ -101,7 +96,7 @@ router.put("/:id", async (req, res) => {
     }
 
     // Update other fields
-    user.username = username || user.username;
+    user.userName = userName || user.userName;
     user.email = email || user.email;
 
     await user.save();
@@ -130,4 +125,30 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+// Route to get the logged-in user's details
+router.get("/me", async (req, res) => {
+  try {
+    // Get token from Authorization header
+    const token = req.headers.authorization?.split(" ")[1]; // Extract token from Bearer token
+
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Verify the token and decode it
+    const decoded = jwt.verify(token, process.env.JWT_SECRET); // Make sure to replace with your secret key
+
+    // Fetch the user based on the decoded user ID
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Send back the user data (e.g., name)
+    res.json({ name: user.name }); // Assuming the user model has a 'name' field
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch user details" });
+  }
+});
 module.exports = router;

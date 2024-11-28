@@ -1,40 +1,66 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import LogoutIcon from "@mui/icons-material/Logout";
+import LoginIcon from "@mui/icons-material/Login";
+import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
+import HomeIcon from "@mui/icons-material/Home";
+import ReviewsIcon from "@mui/icons-material/Reviews";
 
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  // Check login status on component mount or on any login/logout
+  // Check if user is logged in when the component mounts or when token changes
   useEffect(() => {
-    const token = localStorage.getItem("auth_token");
-    setIsLoggedIn(!!token); // Set true if token exists, otherwise false
-  }, []); // Empty dependency array ensures this effect only runs once on mount
+    const token = localStorage.getItem("authToken");
+    setIsLoggedIn(!!token); // true if token exists, false if not
+  }, [localStorage.getItem("authToken")]); // This ensures re-check on token change
 
-  // Handle logout action
+  // Handle logout
   const handleLogout = () => {
-    localStorage.removeItem("auth_token"); // Remove the token
-    setIsLoggedIn(false); // Update state to reflect user is logged out
-    navigate("/login"); // Redirect to login page after logging out
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("userName");
+    setIsLoggedIn(false);
+    navigate("/login");
   };
 
   return (
-    <header className="flex items-center justify-between p-4 text-white bg-gray-800">
-      <div className="text-xl">
-        <Link to="/" className="font-bold text-white">My Book Review Platform</Link>
-      </div>
-      <div>
-        {isLoggedIn ? (
-          <div className="flex items-center space-x-4">
-            <Link to="/profile" className="text-white">Profile</Link>
-            <button onClick={handleLogout} className="text-white">Logout</button>
-          </div>
-        ) : (
-          <div className="flex items-center space-x-4">
-            <Link to="/login" className="text-white">Login</Link>
-            <Link to="/register" className="text-white">Register</Link>
-          </div>
-        )}
+    <header className='fixed top-0 left-0 right-0 z-50 p-4 bg-white shadow-lg backdrop-blur-lg bg-opacity-35'>
+      <div className='flex items-center justify-between'>
+        <div className='text-xl'>
+          <Link to='/' className='font-bold text-[#FFA500]'>
+            Book Reviewer
+          </Link>
+        </div>
+        <div className='flex items-center text-[#FFA500]'>
+          {isLoggedIn ? (
+            <div className='flex items-center'>
+              <Link to='/' className='mr-10 hover:text-gray-60 hover:text-gray-600'>
+                <HomeIcon className='mx-2' />
+                Home
+              </Link>
+              <Link to='/myReviews' className='mr-52 hover:text-gray-600'>
+                <ReviewsIcon className='mx-2' />
+                My Reviews
+              </Link>
+              <button onClick={handleLogout} className='flex items-center'>
+                <LogoutIcon className='mr-2' />
+                Logout
+              </button>
+            </div>
+          ) : (
+            <div className='flex items-center'>
+              <Link to='/login' className='mr-4'>
+                <LoginIcon className='mx-2' />
+                Login
+              </Link>
+              <Link to='/signup'>
+                <AppRegistrationIcon className='mx-2' />
+                Signup
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </header>
   );
