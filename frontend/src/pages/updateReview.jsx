@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { TextField, Button, Rating } from "@mui/material";
-import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+import { TextField, Rating } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import Swal from "sweetalert2";
 

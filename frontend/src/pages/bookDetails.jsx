@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Card, CardContent, Rating, TextField, Divider, Switch, FormControlLabel } from "@mui/material";
+import { Typography, Rating, TextField, Divider, Switch, FormControlLabel } from "@mui/material";
 import { useParams } from "react-router-dom";
 import OrbitProgress from "react-loading-indicators";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
@@ -103,7 +103,7 @@ function BookDetails() {
         },
         body: JSON.stringify({
           bookId: id,
-          userName: userName, // Replace with current user
+          userName: userName, 
           reviewText: review,
           rating: rating,
         }),
@@ -154,7 +154,7 @@ function BookDetails() {
 
   return (
     <div className=' max-w-[1200px] mx-auto mt-20'>
-      <h1 className='text-4xl font-bold text-center'>Book Details</h1>
+      <h1 className='text-4xl font-bold text-center text-orangeYellow'>Book Details</h1>
 
       <div className='flex mx-20 mt-10'>
         <img src={book.coverImage} alt={book.title} className='border rounded-lg max-h-80 border-orangeYellow' />
@@ -182,7 +182,7 @@ function BookDetails() {
       <Divider sx={{ my: 2 }} />
 
       <div component='form ' className='mx-20 ' onSubmit={handleReviewSubmit}>
-        <h1 className='my-6 text-2xl' onClick={handleToggleForm}>
+        <h1 className='my-6 text-2xl text-orangeYellow' onMouseEnter={handleToggleForm}>
           Leave a Review <NavigateNextIcon className='ml-10 scale-150 text-orangeYellow' />
         </h1>
         <div
@@ -201,13 +201,13 @@ function BookDetails() {
               sx={{
                 "& .MuiOutlinedInput-root": {
                   "& fieldset": {
-                    borderColor: "#FFA500", // Set the border color to orange
+                    borderColor: "#FFA500", 
                   },
                   "&:hover fieldset": {
-                    borderColor: "#FFA500", // Keep the same border color on hover
+                    borderColor: "#FFA500", 
                   },
                   "&.Mui-focused fieldset": {
-                    borderColor: "#FFA500", // Keep the same border color when focused
+                    borderColor: "#FFA500", 
                   },
                 },
               }}
@@ -232,13 +232,13 @@ function BookDetails() {
               marginTop: "10px",
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
-                  borderColor: "#FFA500", 
+                  borderColor: "#FFA500",
                 },
                 "&:hover fieldset": {
-                  borderColor: "#FFA500", 
+                  borderColor: "#FFA500",
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "#FFA500", 
+                  borderColor: "#FFA500",
                 },
               },
             }}
@@ -249,7 +249,7 @@ function BookDetails() {
               value={rating}
               onChange={(e, newValue) => setRating(newValue)}
               sx={{
-                color: "#ffff25", 
+                color: "#ffff25",
               }}
             />
           </div>
@@ -259,24 +259,32 @@ function BookDetails() {
         </div>
       </div>
       <Divider sx={{ my: 2 }} />
-      
-      <h1 className='mx-20 mt-10 text-2xl'>Reviews</h1>
+
+      <h1 className='mx-20 mt-10 text-2xl text-orangeYellow'>Reviews</h1>
       {reviews.length === 0 ? (
-        <Typography variant='body1'>No reviews yet for this book.</Typography>
+        <div className='mt-4 mb-10 mx-52'>
+          <Typography className='mx-auto' variant='body1'>
+            No reviews yet for this book.
+          </Typography>
+        </div>
       ) : (
         reviews.map((review) => (
-          <div className='mt-4 mx-20 border rounded-md max-w-[800px] p-4 shadow-lg border-orangeYellow' key={review._id} sx={{ my: 2 }}>
-            <div className="flex">
-              <h1 className="ml-2">
+          <div className='mt-4 mx-20 border rounded-md max-w-[800px] p-4 shadow-lg border-orangeYellow mb-10' key={review._id} sx={{ my: 2 }}>
+            <div className='flex'>
+              <h1 className='ml-2'>
                 <strong>{review.userName}</strong>
               </h1>
-              <Rating value={review.rating} readOnly className="ml-36"  sx={{
-                color: "#ffff25", 
-              }}/>
-              <p className="ml-4">({review.rating})</p>
-              </div>
-              <p className="mt-2 ml-2">{review.reviewText}</p>
-            
+              <Rating
+                value={review.rating}
+                readOnly
+                className='ml-36'
+                sx={{
+                  color: "#ffff25",
+                }}
+              />
+              <p className='ml-4'>({review.rating})</p>
+            </div>
+            <p className='mt-2 ml-2'>{review.reviewText}</p>
           </div>
         ))
       )}

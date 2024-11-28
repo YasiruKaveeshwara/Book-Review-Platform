@@ -106,25 +106,30 @@ function MyReviews() {
         reviews.map((review) => (
           <div
             key={review._id}
-            className='mb-6 transition-all border rounded-lg shadow-lg max-w-[800px] mx-auto shadow-orange hover:shadow-orangeYellow'>
-            <div className='flex p-4' onClick={() => handleToggleExpand(review._id)}>
+            className='mb-6 transition-all border rounded-lg shadow-lg max-w-[800px] mx-auto shadow-orange hover:shadow-orangeYellow hover:shadow-md'
+            title='Click to expand'>
+            <div className='flex p-4' onMouseEnter={() => handleToggleExpand(review._id)}>
               <img alt={review.book.title} src={review.book.coverImage} className='h-24 border rounded max-w-[100px] border-orangeYellow shadow-md' />
-              <div className='mt-2 ml-10 '>
+              <div className='mt-2 ml-10 w-[500px]'>
                 <Typography variant='h5'>{review.book.title}</Typography>
-                <Typography className='pt-4' variant='subtitle1'>
-                  {review.book.author}
-                </Typography>
+                <div className='flex'>
+                  <Typography className='pt-4' variant='subtitle1'>
+                    {review.book.author}
+                  </Typography>
+                  <Rating
+                  className="pt-4 ml-20"
+                    value={review.rating}
+                    readOnly
+                    sx={{
+                      color: "#ffff25",
+                    }}
+                  />
+                  <div className='pt-4 my-auto ml-4'>({review.rating})</div>
+                </div>
               </div>
-              <div className='flex my-auto ml-20'>
-                <Rating value={review.rating} readOnly sx={{
-                color: "#ffff25",
-              }}/>
-                <div className='my-auto ml-4'>({review.rating})</div>
-                <EditIcon
-                  className='my-auto ml-52 text-orangeYellow'
-                  onClick={() => navigate(`/updateReview/${review._id}`)}
-                  titleAccess='Edit Review'
-                />
+              <div className='flex my-auto '>
+                
+                <EditIcon className='my-auto text-orangeYellow' onClick={() => navigate(`/updateReview/${review._id}`)} titleAccess='Edit Review' />
                 <DeleteForeverIcon className='my-auto ml-6 text-red-500' onClick={() => handleDeleteReview(review._id)} titleAccess='Delete Review' />
               </div>
             </div>

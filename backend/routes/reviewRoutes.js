@@ -3,15 +3,6 @@ const Review = require("../models/Review");
 const Book = require("../models/Book");
 const router = express.Router();
 
-// Get all reviews for all books
-router.get("/", async (req, res) => {
-  try {
-    const reviews = await Review.find().populate("book", "title author"); // Populating book info
-    res.status(200).json(reviews);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
 
 // Get all reviews for a specific book (book-wise)
 router.get("/book/:bookId", async (req, res) => {

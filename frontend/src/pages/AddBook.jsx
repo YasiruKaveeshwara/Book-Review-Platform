@@ -67,6 +67,18 @@ function AddBook() {
         showConfirmButton: false,
         timer: 1500,
       });
+
+      setBookDetails({
+        title: "",
+        author: "",
+        isbn: "",
+        description: "",
+        rating: 0.1,
+        coverImage: "",
+        reviews: [],
+      });
+      setCoverImage("");
+      setShowCoverImage(false);
     } catch (error) {
       console.error("Error adding book:", error);
       Swal.fire({
@@ -86,7 +98,7 @@ function AddBook() {
           <div className='flex'>
             {showCoverImage && coverImage && (
               <div className='container rounded-md border flex border-orangeYellow h-[275px] w-[300px] mr-20 p-2'>
-                <img alt='Cover Image' src={coverImage} />
+                <img alt='Book cover' src={coverImage} />
               </div>
             )}
 
@@ -133,7 +145,7 @@ function AddBook() {
                   },
                 }}
               />
-              
+
               <TextField
                 label='Author'
                 name='author'

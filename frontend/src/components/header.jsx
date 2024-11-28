@@ -5,6 +5,7 @@ import LoginIcon from "@mui/icons-material/Login";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import HomeIcon from "@mui/icons-material/Home";
 import ReviewsIcon from "@mui/icons-material/Reviews";
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 
 function Header() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -13,8 +14,8 @@ function Header() {
   // Check if user is logged in when the component mounts or when token changes
   useEffect(() => {
     const token = localStorage.getItem("authToken");
-    setIsLoggedIn(!!token); // true if token exists, false if not
-  }, [localStorage.getItem("authToken")]); // This ensures re-check on token change
+    setIsLoggedIn(!!token);
+  }, [localStorage.getItem("authToken")]); 
 
   // Handle logout
   const handleLogout = () => {
@@ -39,10 +40,15 @@ function Header() {
                 <HomeIcon className='mx-2' />
                 Home
               </Link>
-              <Link to='/myReviews' className='mr-52 hover:text-gray-600'>
+              <Link to='/myReviews' className='mr-10 hover:text-gray-60 hover:text-gray-600'>
                 <ReviewsIcon className='mx-2' />
                 My Reviews
               </Link>
+              <Link to='/addBook' className='mr-52 hover:text-gray-600'>
+                <MenuBookIcon className='mx-2' />
+                Add Books
+              </Link>
+              
               <button onClick={handleLogout} className='flex items-center'>
                 <LogoutIcon className='mr-2' />
                 Logout
@@ -54,7 +60,7 @@ function Header() {
                 <LoginIcon className='mx-2' />
                 Login
               </Link>
-              <Link to='/signup'>
+              <Link to='/register'>
                 <AppRegistrationIcon className='mx-2' />
                 Signup
               </Link>

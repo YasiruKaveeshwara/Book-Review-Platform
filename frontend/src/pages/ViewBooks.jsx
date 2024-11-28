@@ -50,10 +50,12 @@ function ViewBooks() {
 
   return (
     <div className='p-4 max-w-[1200px] mx-auto mt-12'>
-      <h1 className='mx-auto mb-6 text-4xl font-semibold text-center'>All Books</h1>
+      <h1 className='mx-auto mb-6 text-4xl font-semibold text-center text-orangeYellow'>All Books</h1>
       <div className='grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4'>
         {books.map((book) => (
-          <div key={book._id} className='transition duration-300 border rounded-t-lg shadow-lg border-orangeYellow hover:shadow-xl'>
+          <div
+            key={book._id}
+            className='transition duration-300 border rounded-t-lg shadow-lg border-orangeYellow hover:shadow-orangeYellow hover:shadow-md '>
             <Link to={`/book/${book._id}`} className='block no-underline'>
               <div className='relative '>
                 <img src={book.coverImage} alt={book.title} className='object-cover w-full h-56 p-4 rounded-t-lg shadow-md' />
@@ -67,7 +69,6 @@ function ViewBooks() {
                 <Rating
                   sx={{
                     color: "#ffff25",
-                    // Set the star color to yellow
                   }}
                   value={book.rating}
                   precision={0.1}
