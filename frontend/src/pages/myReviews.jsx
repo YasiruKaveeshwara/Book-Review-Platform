@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Rating, Collapse } from "@mui/material";
+import { Typography, Rating, Collapse, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import OrbitProgress from "react-loading-indicators";
 import EditIcon from "@mui/icons-material/Edit";
@@ -11,6 +11,36 @@ function MyReviews() {
   const [expandedReviewId, setExpandedReviewId] = useState(null);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+
+  const [filter, setFilter] = useState({
+    bookName: "",
+    rating: "",
+    date: "",
+  });
+
+  const filteredReviews = reviews.filter((review) => {
+    if (filter.bookName && !review.book.title.toLowerCase().includes(filter.bookName.toLowerCase())) {
+      return false;
+    }
+
+    if (filter.rating && review.rating !== Number(filter.rating)) {
+      return false;
+    }
+
+    if (filter.date && new Date(review.date).toLocaleDateString() !== new Date(filter.date).toLocaleDateString()) {
+      return false;
+    }
+
+    return true;
+  });
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilter((prevFilter) => ({
+      ...prevFilter,
+      [name]: value,
+    }));
+  };
 
   useEffect(() => {
     const fetchReviews = async () => {
@@ -100,10 +130,80 @@ function MyReviews() {
       <div className='flex'>
         <p className='items-center mx-auto mt-16 mb-6 text-4xl font-semibold text-orangeYellow'>My Reviews</p>
       </div>
+      <div className='flex mx-auto space-x-6 max-w-[800px] mb-4'>
+        <TextField
+          label='Filter by Book Name'
+          name='bookName'
+          value={filter.bookName}
+          onChange={handleFilterChange}
+          fullWidth
+          margin='normal'
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: "#FFA500",
+              },
+              "&:hover fieldset": {
+                borderColor: "#FFA500",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#FFA500",
+              },
+            },
+          }}
+        />
+
+        <TextField
+          label='Filter by Date'
+          name='date'
+          type='date'
+          value={filter.date}
+          onChange={handleFilterChange}
+          fullWidth
+          margin='normal'
+          sx={{
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: "#FFA500",
+              },
+              "&:hover fieldset": {
+                borderColor: "#FFA500",
+              },
+              "&.Mui-focused fieldset": {
+                borderColor: "#FFA500",
+              },
+            },
+          }}
+          InputLabelProps={{
+            shrink: true,
+          }}
+        />
+        <div className='flex my-auto'>
+          <Rating
+            name='rating'
+            value={filter.rating}
+            onChange={(event, newValue) => {
+              setFilter((prevFilter) => ({
+                ...prevFilter,
+                rating: newValue,
+              }));
+            }}
+            sx={{
+              color: "#FFA500",
+            }}
+          />
+          <p className='mx-4'>({filter.rating})</p>
+        </div>
+        <button
+          onClick={() => setFilter({ bookName: "", rating: "", date: "" })}
+          className='px-2 py-2 my-auto text-white bg-orange-500 rounded hover:bg-orange-600 w-[500px]'>
+          Clear Filters
+        </button>
+      </div>
       {reviews.length === 0 ? (
         <Typography variant='h6'>No reviews found</Typography>
       ) : (
-        reviews.map((review) => (
+        filteredReviews.map((review) => (
           <div
             key={review._id}
             className='mb-6 transition-all border rounded-lg shadow-lg max-w-[800px] mx-auto shadow-orange hover:shadow-orangeYellow hover:shadow-md'
@@ -117,7 +217,7 @@ function MyReviews() {
                     {review.book.author}
                   </Typography>
                   <Rating
-                  className="pt-4 ml-20"
+                    className='pt-4 ml-20'
                     value={review.rating}
                     readOnly
                     sx={{
@@ -128,7 +228,6 @@ function MyReviews() {
                 </div>
               </div>
               <div className='flex my-auto '>
-                
                 <EditIcon className='my-auto text-orangeYellow' onClick={() => navigate(`/updateReview/${review._id}`)} titleAccess='Edit Review' />
                 <DeleteForeverIcon className='my-auto ml-6 text-red-500' onClick={() => handleDeleteReview(review._id)} titleAccess='Delete Review' />
               </div>
