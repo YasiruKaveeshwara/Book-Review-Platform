@@ -6,12 +6,18 @@ const router = express.Router();
 // Add a new book
 router.post("/add", async (req, res) => {
   try {
-    const { title, author, isbn, review, rating, coverImage } = req.body;
+    const { title, author, isbn, description, rating, coverImage } = req.body;
+    
+    // Validate data
+    if (!title || !author || !isbn || !description || !rating || !coverImage) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
     const newBook = new Book({
       title,
       author,
       isbn,
-      review,
+      description,
       rating,
       coverImage,
     });
@@ -19,7 +25,7 @@ router.post("/add", async (req, res) => {
     const savedBook = await newBook.save();
     res.status(201).json(savedBook);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Error saving book: " + err.message });
   }
 });
 
@@ -29,7 +35,7 @@ router.get("/", async (req, res) => {
     const books = await Book.find();
     res.status(200).json(books);
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Error fetching books: " + err.message });
   }
 });
 
@@ -42,33 +48,7 @@ router.get("/:id", async (req, res) => {
     }
     res.status(200).json(book);
   } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Update a book by ID
-router.put("/:id", async (req, res) => {
-  try {
-    const updatedBook = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!updatedBook) {
-      return res.status(404).json({ message: "Book not found" });
-    }
-    res.status(200).json(updatedBook);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-// Delete a book by ID
-router.delete("/:id", async (req, res) => {
-  try {
-    const deletedBook = await Book.findByIdAndDelete(req.params.id);
-    if (!deletedBook) {
-      return res.status(404).json({ message: "Book not found" });
-    }
-    res.status(200).json({ message: "Book deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message: "Error fetching book: " + err.message });
   }
 });
 
