@@ -1,38 +1,45 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Card, CardContent, Typography, Rating, CardMedia, Box, Collapse } from "@mui/material";
+import { Typography, Rating, Collapse } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import OrbitProgress from "react-loading-indicators";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
+import Swal from "sweetalert2";
 
 function MyReviews() {
-  const [reviews, setReviews] = useState([]); // Ensure initial state is an array
-  const [expandedReviewId, setExpandedReviewId] = useState(null); // To track which review is expanded
+  const [reviews, setReviews] = useState([]);
+  const [expandedReviewId, setExpandedReviewId] = useState(null);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    if (!token) {
-      navigate("/login"); // Redirect to login if user is not logged in
-      return;
-    }
-
-    console.log("Auth Token:", token);
-    console.log("Username:", localStorage.getItem("userName"));
-
     const fetchReviews = async () => {
-      const userName = localStorage.getItem("userName"); // Get the logged-in userName from local storage
+      const userName = localStorage.getItem("userName");
       try {
         const response = await fetch(`http://localhost:5000/api/reviews/user/${userName}`);
         const data = await response.json();
 
-        // Check if the data is an array
         if (Array.isArray(data)) {
           setReviews(data);
         } else {
           console.error("Unexpected data format:", data);
-          setReviews([]); // Set to empty array if the data isn't in expected format
+          Swal.fire({
+            icon: "error",
+            title: "Error fetching reviews",
+            text: "An error occurred while fetching reviews. Please try again later.",
+          });
+
+          setReviews([]);
         }
       } catch (err) {
         console.error("Error fetching reviews:", err);
+        Swal.fire({
+          icon: "error",
+          title: "Error fetching reviews",
+          text: "An error occurred while fetching reviews. Please try again later.",
+        });
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -40,42 +47,97 @@ function MyReviews() {
   }, [navigate]);
 
   const handleToggleExpand = (id) => {
-    setExpandedReviewId(expandedReviewId === id ? null : id); // Toggle expand/collapse for the clicked review
+    setExpandedReviewId(expandedReviewId === id ? null : id);
   };
 
-  return (
-    <Box className='p-6'>
-      <Typography variant='h4' gutterBottom>
-        My Reviews
-      </Typography>
+  const handleDeleteReview = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          const response = await fetch(`http://localhost:5000/api/reviews/${id}`, {
+            method: "DELETE",
+          });
+          if (!response.ok) {
+            Swal.fire("Error!", "An error occurred while deleting the review.", "error");
+            throw new Error("Failed to delete review");
+          }
+          const data = await response.json();
+          console.log("Review deleted:", data);
+          setReviews((prevReviews) => prevReviews.filter((review) => review._id !== id));
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your review has been deleted.",
+            icon: "success",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        } catch (err) {
+          console.error("Error deleting review:", err);
+          Swal.fire("Error!", "An error occurred while deleting the review.", "error");
+        }
+      }
+    });
+  };
 
+  if (loading) {
+    return (
+      <div className='flex items-center justify-center h-screen'>
+        <OrbitProgress variant='dotted' color='#FFA500' size='medium' className='flex-col' />
+      </div>
+    );
+  }
+
+  return (
+    <div className='p-6 max-w-[1200px] mx-auto'>
+      <div className='flex'>
+        <p className='items-center mx-auto mt-16 mb-6 text-4xl font-semibold text-orangeYellow'>My Reviews</p>
+      </div>
       {reviews.length === 0 ? (
         <Typography variant='h6'>No reviews found</Typography>
       ) : (
         reviews.map((review) => (
-          <Card key={review._id} className='mb-6 transition-all shadow-lg hover:shadow-xl'>
+          <div
+            key={review._id}
+            className='mb-6 transition-all border rounded-lg shadow-lg max-w-[800px] mx-auto shadow-orange hover:shadow-orangeYellow'>
             <div className='flex p-4' onClick={() => handleToggleExpand(review._id)}>
-              <CardMedia
-                component='img'
-                alt={review.book.title}
-                image={review.book.image || "default-image.jpg"} // Ensure there's an image or fallback to default
-              />
-              <CardContent>
-                <Typography variant='h6'>{review.book.title}</Typography>
-                <Typography variant='subtitle1'>{review.book.author}</Typography>
-                <Rating value={review.rating} readOnly />
-              </CardContent>
+              <img alt={review.book.title} src={review.book.coverImage} className='h-24 border rounded max-w-[100px] border-orangeYellow shadow-md' />
+              <div className='mt-2 ml-10 '>
+                <Typography variant='h5'>{review.book.title}</Typography>
+                <Typography className='pt-4' variant='subtitle1'>
+                  {review.book.author}
+                </Typography>
+              </div>
+              <div className='flex my-auto ml-20'>
+                <Rating value={review.rating} readOnly sx={{
+                color: "#ffff25",
+              }}/>
+                <div className='my-auto ml-4'>({review.rating})</div>
+                <EditIcon
+                  className='my-auto ml-52 text-orangeYellow'
+                  onClick={() => navigate(`/updateReview/${review._id}`)}
+                  titleAccess='Edit Review'
+                />
+                <DeleteForeverIcon className='my-auto ml-6 text-red-500' onClick={() => handleDeleteReview(review._id)} titleAccess='Delete Review' />
+              </div>
             </div>
 
             <Collapse in={expandedReviewId === review._id} timeout='auto' unmountOnExit>
-              <CardContent>
+              <div className='mx-8 mb-4 '>
                 <Typography variant='body1'>{review.reviewText}</Typography>
-              </CardContent>
+              </div>
             </Collapse>
-          </Card>
+          </div>
         ))
       )}
-    </Box>
+    </div>
   );
 }
 

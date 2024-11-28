@@ -1,41 +1,47 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Correct hook for navigation
-import { Rating, Alert, Box, TextField, Button } from "@mui/material"; // Material UI components
+import { TextField } from "@mui/material";
+import Swal from "sweetalert2";
 
 function AddBook() {
-  const navigate = useNavigate(); // Correct hook to navigate
+  const [showCoverImage, setShowCoverImage] = useState(false);
+  const [coverImage, setCoverImage] = useState("");
+
   const [bookDetails, setBookDetails] = useState({
     title: "",
     author: "",
     isbn: "",
     description: "",
-    rating: 0, // Default rating set to 0
+    rating: 0.1,
     coverImage: "",
+    reviews: [],
   });
-  const [alert, setAlert] = useState(null);
 
-  // Handle form field changes
   const handleChange = (e) => {
-    setBookDetails({ ...bookDetails, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    setBookDetails({ ...bookDetails, [name]: value });
+
+    if (name === "coverImage") {
+      setCoverImage(value);
+      setShowCoverImage(true);
+    }
   };
 
-  // Handle rating changes (5-star scale)
-  const handleRatingChange = (event, newValue) => {
-    setBookDetails({ ...bookDetails, rating: newValue });
-  };
-
-  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Simple validation
-    if (!bookDetails.title || !bookDetails.author || !bookDetails.isbn || !bookDetails.description || bookDetails.rating === 0 || !bookDetails.coverImage) {
-      setAlert({ message: "All fields are required!", severity: "error" });
+    console.log(bookDetails);
+
+    if (!bookDetails.title || !bookDetails.author || !bookDetails.isbn || !bookDetails.description || !bookDetails.coverImage) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please fill in all fields!",
+      });
       return;
     }
 
     try {
-      // Make an API call to save the book
       const response = await fetch("http://localhost:5000/api/books/add", {
         method: "POST",
         headers: {
@@ -45,120 +51,169 @@ function AddBook() {
       });
 
       if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Error details:", errorData);
+        Swal.fire({
+          icon: "error",
+          title: "Error adding book",
+          text: errorData.message || "An error occurred while adding the book.",
+        });
         throw new Error("Failed to add book");
       }
 
-      const data = await response.json();
-      console.log("Book added successfully:", data);
-      setAlert({ message: "Book added successfully:", severity: "success" });
-
+      Swal.fire({
+        icon: "success",
+        title: "Book added successfully!",
+        showConfirmButton: false,
+        timer: 1500,
+      });
     } catch (error) {
-      setAlert({ message: error.message, severity: "error" });
+      console.error("Error adding book:", error);
+      Swal.fire({
+        icon: "error",
+        title: "Error adding book",
+        text: "An error occurred while adding the book. Please try again later.",
+      });
     }
   };
 
   return (
-    <div className="flex items-center justify-center h-screen bg-orange-100">
-      <div className="w-full max-w-md p-8 bg-white rounded-lg shadow-lg">
-        <h2 className="mb-6 text-2xl font-bold text-center text-orange-500">Add a New Book</h2>
+    <div className='flex items-center justify-center my-20  max-w-[1200px] mx-auto px-20'>
+      <div className='px-20 '>
+        <h2 className='mb-6 text-4xl font-bold text-center text-orange-500'>Add a New Book</h2>
 
-        {/* Display Alert if there is an error */}
-        {alert && (
-          <Alert
-            severity={alert.severity}
-            className="mb-4"
-          >
-            {alert.message}
-          </Alert>
-        )}
+        <form onSubmit={handleSubmit} className='space-y-4'>
+          <div className='flex'>
+            {showCoverImage && coverImage && (
+              <div className='container rounded-md border flex border-orangeYellow h-[275px] w-[300px] mr-20 p-2'>
+                <img alt='Cover Image' src={coverImage} />
+              </div>
+            )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <TextField
-              label="Title"
-              name="title"
-              value={bookDetails.title}
-              onChange={handleChange}
-              fullWidth
-              required
-              variant="outlined"
-            />
+            <div className='w-full space-y-4'>
+              <TextField
+                label='Cover Image URL'
+                name='coverImage'
+                value={bookDetails.coverImage}
+                onChange={handleChange}
+                fullWidth
+                variant='outlined'
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#FFA500",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#FFA500",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#FFA500",
+                    },
+                  },
+                }}
+              />
+              <TextField
+                label='Title'
+                name='title'
+                value={bookDetails.title}
+                onChange={handleChange}
+                fullWidth
+                variant='outlined'
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#FFA500",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#FFA500",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#FFA500",
+                    },
+                  },
+                }}
+              />
+              
+              <TextField
+                label='Author'
+                name='author'
+                value={bookDetails.author}
+                onChange={handleChange}
+                fullWidth
+                variant='outlined'
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#FFA500",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#FFA500",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#FFA500",
+                    },
+                  },
+                }}
+              />
+              <TextField
+                label='ISBN'
+                name='isbn'
+                value={bookDetails.isbn}
+                onChange={handleChange}
+                fullWidth
+                variant='outlined'
+                sx={{
+                  "& .MuiOutlinedInput-root": {
+                    "& fieldset": {
+                      borderColor: "#FFA500",
+                    },
+                    "&:hover fieldset": {
+                      borderColor: "#FFA500",
+                    },
+                    "&.Mui-focused fieldset": {
+                      borderColor: "#FFA500",
+                    },
+                  },
+                }}
+              />
+            </div>
           </div>
 
           <div>
             <TextField
-              label="Author"
-              name="author"
-              value={bookDetails.author}
-              onChange={handleChange}
-              fullWidth
-              required
-              variant="outlined"
-            />
-          </div>
-
-          <div>
-            <TextField
-              label="ISBN"
-              name="isbn"
-              value={bookDetails.isbn}
-              onChange={handleChange}
-              fullWidth
-              required
-              variant="outlined"
-            />
-          </div>
-
-          <div>
-            <TextField
-              label="Description"
-              name="description"
+              label='Description'
+              name='description'
               value={bookDetails.description}
               onChange={handleChange}
               fullWidth
-              required
-              variant="outlined"
+              variant='outlined'
               multiline
               rows={4}
+              sx={{
+                "& .MuiOutlinedInput-root": {
+                  "& fieldset": {
+                    borderColor: "#FFA500",
+                  },
+                  "&:hover fieldset": {
+                    borderColor: "#FFA500",
+                  },
+                  "&.Mui-focused fieldset": {
+                    borderColor: "#FFA500",
+                  },
+                },
+              }}
             />
           </div>
 
-          {/* Material UI Rating component for selecting the rating */}
-          <div className="flex flex-col items-center">
-            <h3 className="mb-2 text-xl text-orange-500">Rating</h3>
-            <Rating
-              name="rating"
-              value={bookDetails.rating}
-              onChange={handleRatingChange}
-              size="large"
-            />
+          <div className='flex items-center mx-auto '>
+            <button className='flex m-auto p-2 px-4 text-[white] rounded-md bg-orangeYellow font-semibold hover:shadow-lg ' type='submit'>
+              Add Book
+            </button>
           </div>
-
-          <div>
-            <TextField
-              label="Cover Image URL"
-              name="coverImage"
-              value={bookDetails.coverImage}
-              onChange={handleChange}
-              fullWidth
-              required
-              variant="outlined"
-            />
-          </div>
-
-          <Button
-            type="submit"
-            variant="contained"
-            color="warning"
-            fullWidth
-            size="large"
-          >
-            Add Book
-          </Button>
         </form>
       </div>
     </div>
   );
-};
+}
 
 export default AddBook;

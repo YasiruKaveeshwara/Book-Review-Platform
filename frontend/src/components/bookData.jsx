@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Typography, Card, CardContent, Rating, TextField, Divider, Switch, FormControlLabel } from "@mui/material";
+import { Typography, Card, CardContent, Rating, TextField, Alert, Divider, Switch, FormControlLabel } from "@mui/material";
 import { useParams } from "react-router-dom";
 import OrbitProgress from "react-loading-indicators";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import Swal from "sweetalert2";
 
 function BookDetails() {
-  const { id } = useParams();
+  const { id } = useParams(); // Get the book ID from the URL
   const [book, setBook] = useState(null);
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState([]); // Initialize reviews as an empty array
   const [review, setReview] = useState("");
   const [userName, setUserName] = useState("Anonymous");
   const [rating, setRating] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(null);
   const [isAnonymous, setIsAnonymous] = useState(false);
+  const [showWarning, setShowWarning] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [isFormVisible, setIsFormVisible] = useState(false);
 
@@ -25,30 +27,12 @@ function BookDetails() {
       try {
         const bookResponse = await fetch(`http://localhost:5000/api/books/${id}`);
         if (!bookResponse.ok) {
-          Swal.fire({
-            icon: "error",
-            title: "Error fetching book details",
-            text: "An error occurred while fetching book details. Please try again later.",
-          });
-
           throw new Error("Failed to fetch book details.");
         }
         const bookData = await bookResponse.json();
         setBook(bookData);
-
-        const reviewResponse = await fetch(`http://localhost:5000/api/reviews/book/${id}`);
-        const reviewData = await reviewResponse.json();
-        if (Array.isArray(reviewData)) {
-          setReviews(reviewData);
-        } else {
-          setReviews([]);
-        }
       } catch (err) {
-        Swal.fire({
-          icon: "error",
-          title: "Error fetching book details",
-          text: "An error occurred while fetching book details. Please try again later.",
-        });
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -66,35 +50,25 @@ function BookDetails() {
     if (showAlert) {
       timer = setTimeout(() => setShowAlert(false), 3000);
     }
-    return () => clearTimeout(timer);
+    return () => clearTimeout(timer); // Clean up the timer on unmount
   }, [showAlert]);
 
   const handleToggleAnonymous = (event) => {
+    setIsAnonymous(event.target.checked);
     if (event.target.checked) {
-      Swal.fire({
-        title: "Are you sure?",
-        text: "If you publish this review as anonymous, you won't be able to update or delete it later.",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#FFA500",
-        cancelButtonColor: "#3085d6",
-        confirmButtonText: "Yes, make it anonymous",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          setIsAnonymous(true);
-          setUserName("Anonymous");
-        } else {
-          setIsAnonymous(false);
-        }
-      });
+      setUserName("Anonymous");
+      setShowWarning(true);
+      setSuccess(false);
+      setShowAlert(true);
     } else {
-      setIsAnonymous(false);
       setUserName(storedUserName);
+      setShowWarning(false);
     }
   };
 
   const handleReviewSubmit = async (event) => {
     event.preventDefault();
+    // Submit review to backend
     try {
       const response = await fetch("http://localhost:5000/api/reviews", {
         method: "POST",
@@ -110,33 +84,18 @@ function BookDetails() {
       });
 
       if (!response.ok) {
-        Swal.fire({
-          icon: "error",
-          title: "Error submitting review",
-          text: "An error occurred while submitting your review. Please try again later.",
-        });
-
         throw new Error("Failed to submit review.");
       }
 
-      Swal.fire({
-        icon: "success",
-        title: "Review submitted successfully!",
-        showConfirmButton: false,
-        timer: 1500,
-      });
-
       const newReview = await response.json();
       setReviews([...reviews, newReview]);
+      setShowAlert(true);
+      setSuccess("Review submitted successfully!");
       setReview("");
       setUserName(storedUserName);
       setRating(0);
     } catch (err) {
-      Swal.fire({
-        icon: "error",
-        title: "Error submitting review",
-        text: "An error occurred while submitting your review. Please try again later.",
-      });
+      setError(err.message); // Handle submission error
     }
   };
 
@@ -153,15 +112,17 @@ function BookDetails() {
   }
 
   return (
-    <div className=' max-w-[1200px] mx-auto mt-20'>
-      <h1 className='text-4xl font-bold text-center'>Book Details</h1>
+    <div className=' max-w-[1200px] mx-auto mt-16'>
+      <Typography variant='h3' className='text-center '>
+        Book Details
+      </Typography>
 
       <div className='flex mx-20 mt-10'>
         <img src={book.coverImage} alt={book.title} className='border rounded-lg max-h-80 border-orangeYellow' />
-        <div className='flex-col mt-[-15px] ml-10'>
-          <h1 className='mt-2 text-3xl font-semibold'>{book.title}</h1>
-          <h1 className='mt-4 text-xl'>by {book.author}</h1>
-          <h1 className='mt-4 text-lg'>ISBN : {book.isbn}</h1>
+        <div className='flex-col ml-10'>
+          <h2 className='mt-2 text-4xl font-semibold'>{book.title}</h2>
+          <h4 className='mt-4 text-2xl'>by {book.author}</h4>
+          <h4 className='mt-4 text-lg'>ISBN : {book.isbn}</h4>
 
           <h4 className='flex mt-4 text-lg'>
             <Rating
@@ -172,7 +133,7 @@ function BookDetails() {
                 color: "#ffff25",
               }}
             />
-            <h1 className='ml-4 mt-[-1px]'>{book.rating.toFixed(1)}</h1>
+            <h1 className='ml-4 mt-[-1px]'>{book.rating.toFixed(1)}</h1> {/* Rating value in 1 decimal */}
           </h4>
 
           <h4 className='mt-4'>{book.description}</h4>
@@ -180,7 +141,17 @@ function BookDetails() {
       </div>
 
       <Divider sx={{ my: 2 }} />
-
+      {showAlert && success && (
+        <Alert className='' severity='success'>
+          {success}
+        </Alert>
+      )}
+      {error && <Alert severity='error'>{error}</Alert>}
+      {showAlert && showWarning && (
+        <Alert severity='warning' className='mt-4'>
+          You are submitting an anonymous review. You won't be able to delete or update it later.
+        </Alert>
+      )}
       <div component='form ' className='mx-20 ' onSubmit={handleReviewSubmit}>
         <h1 className='my-6 text-2xl' onClick={handleToggleForm}>
           Leave a Review <NavigateNextIcon className='ml-10 scale-150 text-orangeYellow' />
@@ -232,13 +203,13 @@ function BookDetails() {
               marginTop: "10px",
               "& .MuiOutlinedInput-root": {
                 "& fieldset": {
-                  borderColor: "#FFA500", 
+                  borderColor: "#FFA500", // Set the border color to orange
                 },
                 "&:hover fieldset": {
-                  borderColor: "#FFA500", 
+                  borderColor: "#FFA500", // Keep the same border color on hover
                 },
                 "&.Mui-focused fieldset": {
-                  borderColor: "#FFA500", 
+                  borderColor: "#FFA500", // Keep the same border color when focused
                 },
               },
             }}
@@ -249,7 +220,7 @@ function BookDetails() {
               value={rating}
               onChange={(e, newValue) => setRating(newValue)}
               sx={{
-                color: "#ffff25", 
+                color: "#ffff25",
               }}
             />
           </div>
@@ -258,28 +229,6 @@ function BookDetails() {
           </button>
         </div>
       </div>
-      <Divider sx={{ my: 2 }} />
-      
-      <h1 className='mx-20 mt-10 text-2xl'>Reviews</h1>
-      {reviews.length === 0 ? (
-        <Typography variant='body1'>No reviews yet for this book.</Typography>
-      ) : (
-        reviews.map((review) => (
-          <div className='mt-4 mx-20 border rounded-md max-w-[800px] p-4 shadow-lg border-orangeYellow' key={review._id} sx={{ my: 2 }}>
-            <div className="flex">
-              <h1 className="ml-2">
-                <strong>{review.userName}</strong>
-              </h1>
-              <Rating value={review.rating} readOnly className="ml-36"  sx={{
-                color: "#ffff25", 
-              }}/>
-              <p className="ml-4">({review.rating})</p>
-              </div>
-              <p className="mt-2 ml-2">{review.reviewText}</p>
-            
-          </div>
-        ))
-      )}
     </div>
   );
 }

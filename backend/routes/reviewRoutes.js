@@ -116,7 +116,7 @@ router.get("/user/:userName", async (req, res) => {
   try {
     // Find all reviews that match the userName
     const reviews = await Review.find({ userName: req.params.userName })
-      .populate("book", "title author image")  // Populating book information
+      .populate("book", "title author coverImage") 
       .exec();
 
     // If no reviews are found for the user, return a 404 message
