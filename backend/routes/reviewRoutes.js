@@ -3,7 +3,6 @@ const Review = require("../models/Review");
 const Book = require("../models/Book");
 const router = express.Router();
 
-
 // Get all reviews for a specific book (book-wise)
 router.get("/book/:bookId", async (req, res) => {
   try {
@@ -78,7 +77,6 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    // Create a new review
     const newReview = new Review({
       book: bookId,
       userName,
@@ -86,10 +84,8 @@ router.post("/", async (req, res) => {
       rating,
     });
 
-    // Save the review to the database
     await newReview.save();
 
-    // Optionally, update the book with the average rating (if needed)
     const book = await Book.findById(bookId);
     const allReviews = await Review.find({ book: bookId });
     const averageRating = allReviews.reduce((sum, r) => sum + r.rating, 0) / allReviews.length;
@@ -105,17 +101,12 @@ router.post("/", async (req, res) => {
 // Route to get all reviews by a specific userName
 router.get("/user/:userName", async (req, res) => {
   try {
-    // Find all reviews that match the userName
-    const reviews = await Review.find({ userName: req.params.userName })
-      .populate("book", "title author coverImage") 
-      .exec();
+    const reviews = await Review.find({ userName: req.params.userName }).populate("book", "title author coverImage").exec();
 
-    // If no reviews are found for the user, return a 404 message
     if (!reviews || reviews.length === 0) {
       return res.status(404).json({ message: "No reviews found for this user" });
     }
 
-    // Return the reviews found for the user
     res.status(200).json(reviews);
   } catch (err) {
     console.error(err);
