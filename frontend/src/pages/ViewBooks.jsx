@@ -7,7 +7,6 @@ import Swal from "sweetalert2";
 function ViewBooks() {
   const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
-  console.log("Username:", localStorage.getItem("userName"));
 
   // Fetch books data
   useEffect(() => {

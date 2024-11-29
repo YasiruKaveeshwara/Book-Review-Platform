@@ -153,7 +153,7 @@ function BookDetails() {
   }
 
   return (
-    <div className=' max-w-[1200px] mx-auto mt-20'>
+    <div className=' max-w-[1200px] mx-auto my-20 '>
       <h1 className='text-4xl font-bold text-center text-orangeYellow'>Book Details</h1>
 
       <div className='flex mx-20 mt-10'>
@@ -260,7 +260,7 @@ function BookDetails() {
       </div>
       <Divider sx={{ my: 2 }} />
 
-      <h1 className='mx-20 mt-10 text-2xl text-orangeYellow'>Reviews</h1>
+      <h1 className='mx-20 mt-6 text-2xl text-orangeYellow'>Reviews</h1>
       {reviews.length === 0 ? (
         <div className='mt-4 mb-10 mx-52'>
           <Typography className='mx-auto' variant='body1'>
@@ -269,7 +269,7 @@ function BookDetails() {
         </div>
       ) : (
         reviews.map((review) => (
-          <div className='mt-4 mx-20 border rounded-md max-w-[800px] p-4 shadow-lg border-orangeYellow mb-10' key={review._id} sx={{ my: 2 }}>
+          <div className='mt-4 mx-20 border rounded-md max-w-[800px] p-4 shadow-lg border-orangeYellow ' key={review._id} sx={{ my: 2 }}>
             <div className='flex'>
               <h1 className='ml-2'>
                 <strong>{review.userName}</strong>
