@@ -22,6 +22,21 @@ function AddBook() {
     setBookDetails({ ...bookDetails, [name]: value });
 
     if (name === "coverImage") {
+      const img = new Image();
+      img.onload = () => {
+        setCoverImage(value);
+        setShowCoverImage(true);
+      };
+      img.onerror = () => {
+          Swal.fire({
+            icon: "error",
+            title: "Invalid Image URL",
+            text: "The provided cover image URL is not valid. Please enter a valid URL.",
+          });
+          setCoverImage("");
+          setShowCoverImage(false);
+      };
+      img.src = value;
       setCoverImage(value);
       setShowCoverImage(true);
     }
@@ -124,6 +139,7 @@ function AddBook() {
                   },
                 }}
               />
+
               <TextField
                 label='Title'
                 name='title'
