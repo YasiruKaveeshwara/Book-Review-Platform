@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 function RegisterPage() {
-  const [userName, setuserName] = useState("");
+  const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -59,7 +59,7 @@ function RegisterPage() {
               fullWidth
               required
               value={userName}
-              onChange={(e) => setuserName(e.target.value)}
+              onChange={(e) => setUserName(e.target.value)}
               sx={{
                 "& .MuiOutlinedInput-root": {
                   "& fieldset": {
