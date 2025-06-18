@@ -59,8 +59,6 @@ This is a Book Review web application that allows users to add, view books and w
    JWT_SECRET=<Your JWT Secret>
    ```
 
-   if you want connect with test data email me kaveeshwaray@gmail.com for .env file
-
 5. Start the backend server:
    ```bash
    npm run dev
